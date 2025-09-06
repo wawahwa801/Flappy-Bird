@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(to bottom, #87CEEB, #98FB98);
+            font-family: Arial, sans-serif;
+        }
+        
+        .game-container {
+            text-align: center;
+        }
+        
+        .settings-panel {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .settings-panel h3 {
+            margin: 0 0 20px 0;
+            color: #333;
+            font-size: 20px;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .setting-group {
+            display: inline-block;
+            margin: 0 20px;
+            text-align: left;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .setting-group:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .setting-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #444;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .setting-group input[type="range"] {
+            width: 120px;
+            margin-right: 15px;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .setting-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+        }
+        
+        .setting-group input[type="range"]::-webkit-slider-thumb:hover {
+            background: #45a049;
+            transform: scale(1.1);
+        }
+        
+        .setting-group input[type="number"] {
+            width: 70px;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .setting-group input[type="number"]:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+        
+        .reset-btn {
+            background: linear-gradient(135deg, #FF6B6B, #FF5252);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .reset-btn:hover {
+            background: linear-gradient(135deg, #FF5252, #FF1744);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+        
+        .reset-btn:active {
+            transform: translateY(0);
+        }
+        
+        canvas {
+            border: 3px solid #333;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+        
+        .instructions {
+            margin-top: 20px;
+            color: #333;
+            font-size: 18px;
+        }
+        
+        .score {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        
+        .restart-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .restart-btn:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="score">Score: <span id="score">0</span></div>
+        
+        <div class="settings-panel">
+            <h3>Game Settings</h3>
+                          <div class="setting-group">
+                  <label for="pipeDistance">Pipe Distance:</label>
+                  <input type="range" id="pipeDistance" min="160" max="320" value="224" step="32">
+                  <input type="number" id="pipeDistanceNum" min="160" max="320" value="224" step="32">
+              </div>
+              <div class="setting-group">
+                  <label for="pipeWidth">Pipe Width:</label>
+                  <input type="range" id="pipeWidth" min="32" max="96" value="64" step="32">
+                  <input type="number" id="pipeWidthNum" min="32" max="96" value="64" step="32">
+              </div>
+              <div class="setting-group">
+                  <label for="pipeGap">Pipe Gap:</label>
+                  <input type="range" id="pipeGap" min="96" max="224" value="160" step="32">
+                  <input type="number" id="pipeGapNum" min="96" max="224" value="160" step="32">
+              </div>
+            <br>
+            <button class="reset-btn" onclick="resetSettings()">Reset to Default</button>
+        </div>
+        
+        <canvas id="gameCanvas" width="512" height="640"></canvas>
+        <div class="instructions">
+            Press SPACE or click to flap!<br>
+            Avoid the pipes and don't hit the ground.
+        </div>
+    </div>
+    
+    <div class="game-over" id="gameOver">
+        <h2>Game Over!</h2>
+        <p>Final Score: <span id="finalScore">0</span></p>
+        <button class="restart-btn" onclick="restartGame()">Play Again</button>
+    </div>
+    
+    <script src="game.js"></script>
+</body>
+</html>
